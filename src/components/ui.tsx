@@ -1,6 +1,6 @@
 "use client";
 
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import { useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import { AlertTriangle, ChevronLeft, ChevronRight, Inbox, RefreshCw, Search } from "lucide-react";
 import type { DemoState } from "@/src/types";
 
@@ -98,14 +98,35 @@ export function ChartCard({
   children: ReactNode;
   className?: string;
 }) {
+  const headingId = useId();
   return (
-    <section className={`panel chart-card ${className}`}>
+    <section className={`panel chart-card ${className}`} aria-labelledby={headingId}>
       <header className="panel-heading">
-        <div><h2>{title}</h2><p>{caption}</p></div>
+        <div><h2 id={headingId}>{title}</h2><p>{caption}</p></div>
         {action}
       </header>
       {children}
     </section>
+  );
+}
+
+export function ChartDataTable({
+  caption,
+  headers,
+  rows,
+}: {
+  caption: string;
+  headers: string[];
+  rows: Array<Array<string | number>>;
+}) {
+  return (
+    <div className="sr-only">
+      <table>
+        <caption>{caption}</caption>
+        <thead><tr>{headers.map((header) => <th key={header} scope="col">{header}</th>)}</tr></thead>
+        <tbody>{rows.map((row, rowIndex) => <tr key={rowIndex}>{row.map((cell, cellIndex) => <td key={cellIndex}>{cell}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
   );
 }
 

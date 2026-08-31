@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Download, Lightbulb } from "lucide-react";
+import { toast } from "sonner";
 import {
   Bar,
   BarChart,
@@ -17,7 +19,8 @@ import {
   YAxis,
 } from "recharts";
 import { categoryData, revenueData } from "@/src/data/mock";
-import { Button, ChartCard, DataState, KpiCard, PageHeader } from "@/src/components/ui";
+import { Button, ChartCard, ChartDataTable, DataState, KpiCard, PageHeader } from "@/src/components/ui";
+import { downloadCsv } from "@/src/lib/export";
 import { useDemoState } from "@/src/state/DemoContext";
 
 const channelData = [
@@ -34,11 +37,25 @@ const products = [
   { name: "Common Table Lamp", category: "Home", units: 74, revenue: 5920, growth: "+21%" },
 ];
 
+type ReportRange = "30d" | "6m" | "12m";
+
 export default function AnalyticsPage() {
   const { demoState, setDemoState } = useDemoState();
+  const [range, setRange] = useState<ReportRange>("6m");
+  const visibleRevenue = useMemo(() => range === "30d" ? revenueData.slice(-1) : revenueData, [range]);
+
+  function exportReport() {
+    downloadCsv(
+      `lumadesk-analytics-${range}.csv`,
+      ["Month", "Revenue", "Orders", "New customers"],
+      visibleRevenue.map((item) => [item.month, item.revenue, item.orders, item.customers]),
+    );
+    toast.success("Analytics report exported");
+  }
+
   return (
     <>
-      <PageHeader eyebrow="Signals, not noise" title="Analytics" description="A readable view of growth, demand, and customer behavior." actions={<><label className="compact-select"><span className="sr-only">Date range</span><select defaultValue="6m"><option value="30d">Last 30 days</option><option value="6m">Last 6 months</option><option value="12m">Last 12 months</option></select></label><Button><Download size={16} /> Export</Button></>} />
+      <PageHeader eyebrow="Signals, not noise" title="Analytics" description="A readable view of growth, demand, and customer behavior." actions={<><label className="compact-select"><span className="sr-only">Date range</span><select value={range} onChange={(event) => setRange(event.target.value as ReportRange)}><option value="30d">Last 30 days</option><option value="6m">Last 6 months</option><option value="12m">Last 12 months</option></select></label><Button onClick={exportReport}><Download aria-hidden="true" size={16} /> Export</Button></>} />
       <DataState state={demoState} onRetry={() => setDemoState("ready")} emptyTitle="There is not enough data for a report yet">
         <section className="kpi-grid analytics-kpis" aria-label="Analytics summary">
           <KpiCard label="Average order value" value="$72.93" change="+4.2%" note="Across 642 orders" tone="sage" />
@@ -49,9 +66,9 @@ export default function AnalyticsPage() {
 
         <div className="analytics-grid">
           <ChartCard title="Revenue & customer growth" caption="Momentum has held for three consecutive months." className="wide-chart">
-            <div className="chart-wrap chart-wrap--large">
+            <div className="chart-wrap chart-wrap--large" aria-hidden="true">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-                <LineChart data={revenueData} margin={{ top: 14, right: 12, bottom: 0, left: -16 }}>
+                <LineChart data={visibleRevenue} margin={{ top: 14, right: 12, bottom: 0, left: -16 }}>
                   <CartesianGrid strokeDasharray="4 8" vertical={false} stroke="var(--line)" />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "var(--muted-text)", fontSize: 12 }} />
                   <YAxis yAxisId="left" axisLine={false} tickLine={false} tickFormatter={(value) => "$" + value / 1000 + "k"} tick={{ fill: "var(--muted-text)", fontSize: 12 }} />
@@ -63,19 +80,20 @@ export default function AnalyticsPage() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            <ChartDataTable caption="Revenue and new customer growth by month" headers={["Month", "Revenue", "New customers"]} rows={visibleRevenue.map((item) => [item.month, `$${item.revenue.toLocaleString()}`, item.customers])} />
           </ChartCard>
 
           <ChartCard title="Sales by category" caption="A balanced mix, led by home goods.">
             <div className="donut-layout analytics-donut">
-              <div className="donut-wrap"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={categoryData} dataKey="value" innerRadius={52} outerRadius={80} paddingAngle={3} strokeWidth={0}>{categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Pie><Tooltip formatter={(value) => [value + "%", "Share"]} /></PieChart></ResponsiveContainer></div>
-              <ul className="chart-legend">{categoryData.map((item) => <li key={item.name}><i style={{ background: item.fill }} /><span>{item.name}</span><strong>{item.value}%</strong></li>)}</ul>
+              <div className="donut-wrap" aria-hidden="true"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={categoryData} dataKey="value" innerRadius={52} outerRadius={80} paddingAngle={3} strokeWidth={0}>{categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Pie><Tooltip formatter={(value) => [value + "%", "Share"]} /></PieChart></ResponsiveContainer></div>
+              <ul className="chart-legend" aria-label="Sales by category values">{categoryData.map((item) => <li key={item.name}><i aria-hidden="true" style={{ background: item.fill }} /><span>{item.name}</span><strong>{item.value}%</strong></li>)}</ul>
             </div>
           </ChartCard>
 
           <ChartCard title="Orders per month" caption="Completed orders continue to rise.">
-            <div className="chart-wrap">
+            <div className="chart-wrap" aria-hidden="true">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-                <BarChart data={revenueData} margin={{ top: 10, right: 8, left: -28, bottom: 0 }}>
+                <BarChart data={visibleRevenue} margin={{ top: 10, right: 8, left: -28, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="4 8" vertical={false} stroke="var(--line)" />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "var(--muted-text)", fontSize: 12 }} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: "var(--muted-text)", fontSize: 12 }} />
@@ -84,17 +102,18 @@ export default function AnalyticsPage() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            <ChartDataTable caption="Orders by month" headers={["Month", "Orders"]} rows={visibleRevenue.map((item) => [item.month, item.orders])} />
           </ChartCard>
 
           <ChartCard title="Channel quality" caption="Traffic is useful only when it converts.">
-            <div className="channel-list">{channelData.map((channel) => <div key={channel.channel}><div><strong>{channel.channel}</strong><span>{channel.sessions.toLocaleString()} sessions</span></div><div className="channel-meter"><i style={{ width: channel.conversion * 13 + "%" }} /></div><strong>{channel.conversion}%</strong></div>)}</div>
+            <div className="channel-list">{channelData.map((channel) => <div key={channel.channel}><div><strong>{channel.channel}</strong><span>{channel.sessions.toLocaleString()} sessions</span></div><div className="channel-meter" aria-hidden="true"><i style={{ width: channel.conversion * 13 + "%" }} /></div><strong>{channel.conversion}%</strong></div>)}</div>
           </ChartCard>
         </div>
 
         <div className="dashboard-lower analytics-lower">
           <section className="panel table-panel">
             <header className="panel-heading"><div><h2>Top-performing products</h2><p>Products ranked by August revenue.</p></div></header>
-            <div className="table-scroll"><table><thead><tr><th>Product</th><th>Category</th><th>Units</th><th>Growth</th><th className="numeric">Revenue</th></tr></thead><tbody>{products.map((product) => <tr key={product.name}><td><strong>{product.name}</strong></td><td>{product.category}</td><td>{product.units}</td><td><span className="positive">{product.growth}</span></td><td className="numeric"><strong>{"$" + product.revenue.toLocaleString()}</strong></td></tr>)}</tbody></table></div>
+            <div className="table-scroll"><table><caption className="sr-only">Top-performing products ranked by August revenue</caption><thead><tr><th scope="col">Product</th><th scope="col">Category</th><th scope="col">Units</th><th scope="col">Growth</th><th scope="col" className="numeric">Revenue</th></tr></thead><tbody>{products.map((product) => <tr key={product.name}><td><strong>{product.name}</strong></td><td>{product.category}</td><td>{product.units}</td><td><span className="positive">{product.growth}</span></td><td className="numeric"><strong>{"$" + product.revenue.toLocaleString()}</strong></td></tr>)}</tbody></table></div>
           </section>
           <aside className="insight-card">
             <span><Lightbulb aria-hidden="true" /></span>

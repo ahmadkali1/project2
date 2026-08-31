@@ -1,21 +1,35 @@
 "use client";
 
-import { ArrowUpRight, CalendarDays, Download } from "lucide-react";
+import { CalendarDays, Download } from "lucide-react";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import { Area, AreaChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { activities, categoryData, orders, revenueData } from "@/src/data/mock";
-import { Button, ChartCard, DataState, KpiCard, PageHeader, StatusBadge } from "@/src/components/ui";
+import { Button, ChartCard, ChartDataTable, DataState, KpiCard, PageHeader, StatusBadge } from "@/src/components/ui";
+import { getDashboardHeader } from "@/src/lib/dashboard";
+import { downloadCsv } from "@/src/lib/export";
 import { useDemoState } from "@/src/state/DemoContext";
 
 export default function DashboardPage() {
   const { demoState, setDemoState } = useDemoState();
+  const { greeting, eyebrow } = getDashboardHeader();
+
+  function exportReport() {
+    downloadCsv(
+      "lumadesk-dashboard-report.csv",
+      ["Month", "Revenue", "Orders", "New customers"],
+      revenueData.map((item) => [item.month, item.revenue, item.orders, item.customers]),
+    );
+    toast.success("Dashboard report exported");
+  }
+
   return (
     <>
       <PageHeader
-        eyebrow="Sunday · August 31"
-        title="Good morning, Ahmad."
+        eyebrow={eyebrow}
+        title={`${greeting}, Ahmad.`}
         description="Here’s what changed across your business since yesterday."
-        actions={<><Button variant="secondary"><CalendarDays size={16} /> Last 30 days</Button><Button><Download size={16} /> Export report</Button></>}
+        actions={<><span className="period-indicator"><CalendarDays aria-hidden="true" size={16} /> Last 30 days</span><Button onClick={exportReport}><Download aria-hidden="true" size={16} /> Export report</Button></>}
       />
       <DataState state={demoState} onRetry={() => setDemoState("ready")} emptyTitle="Your dashboard is ready for its first sale">
         <section className="kpi-grid" aria-label="Key performance indicators">
@@ -26,8 +40,8 @@ export default function DashboardPage() {
         </section>
 
         <div className="dashboard-grid">
-          <ChartCard title="Revenue rhythm" caption="Six-month revenue, with the noise turned down." action={<button className="text-action">View report <ArrowUpRight size={15} /></button>} className="revenue-card">
-            <div className="chart-wrap">
+          <ChartCard title="Revenue rhythm" caption="Six-month revenue, with the noise turned down." action={<Link className="text-action" to="/analytics">View report</Link>} className="revenue-card">
+            <div className="chart-wrap" aria-hidden="true">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
                 <AreaChart data={revenueData} margin={{ top: 16, right: 6, bottom: 0, left: -20 }}>
                   <defs><linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#789D8B" stopOpacity={0.36} /><stop offset="100%" stopColor="#789D8B" stopOpacity={0.02} /></linearGradient></defs>
@@ -39,17 +53,18 @@ export default function DashboardPage() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+            <ChartDataTable caption="Revenue by month" headers={["Month", "Revenue"]} rows={revenueData.map((item) => [item.month, `$${item.revenue.toLocaleString()}`])} />
           </ChartCard>
 
           <ChartCard title="Sales mix" caption="Revenue by product family." className="mix-card">
             <div className="donut-layout">
-              <div className="donut-wrap">
+              <div className="donut-wrap" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
                   <PieChart><Pie data={categoryData} dataKey="value" innerRadius={56} outerRadius={78} paddingAngle={3} strokeWidth={0}>{categoryData.map((entry) => <Cell key={entry.name} fill={entry.fill} />)}</Pie><Tooltip formatter={(value) => [value + "%", "Share"]} /></PieChart>
                 </ResponsiveContainer>
                 <span><strong>100%</strong><small>sales mix</small></span>
               </div>
-              <ul className="chart-legend">{categoryData.map((item) => <li key={item.name}><i style={{ background: item.fill }} /><span>{item.name}</span><strong>{item.value}%</strong></li>)}</ul>
+              <ul className="chart-legend" aria-label="Sales mix values">{categoryData.map((item) => <li key={item.name}><i aria-hidden="true" style={{ background: item.fill }} /><span>{item.name}</span><strong>{item.value}%</strong></li>)}</ul>
             </div>
           </ChartCard>
         </div>
@@ -58,14 +73,14 @@ export default function DashboardPage() {
           <section className="panel table-panel">
             <header className="panel-heading"><div><h2>Recent orders</h2><p>The latest movement through your store.</p></div><Link to="/orders">View all</Link></header>
             <div className="table-scroll">
-              <table><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th className="numeric">Total</th></tr></thead>
+              <table><caption className="sr-only">Five most recent orders</caption><thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Status</th><th scope="col" className="numeric">Total</th></tr></thead>
                 <tbody>{orders.slice(0, 5).map((order) => <tr key={order.id}><td><strong>{order.id}</strong><small>{order.date}</small></td><td>{order.customer}</td><td><StatusBadge status={order.fulfillment} /></td><td className="numeric">{"$" + order.total.toLocaleString()}</td></tr>)}</tbody>
               </table>
             </div>
           </section>
           <section className="panel activity-panel">
             <header className="panel-heading"><div><h2>Activity</h2><p>A quiet log of important changes.</p></div></header>
-            <ol className="activity-list">{activities.map((activity) => <li key={activity.title}><i className={"activity-dot activity-dot--" + activity.tone} /><div><strong>{activity.title}</strong><small>{activity.time}</small></div></li>)}</ol>
+            <ol className="activity-list">{activities.map((activity) => <li key={activity.title}><i aria-hidden="true" className={"activity-dot activity-dot--" + activity.tone} /><div><strong>{activity.title}</strong><small>{activity.time}</small></div></li>)}</ol>
           </section>
         </div>
       </DataState>
