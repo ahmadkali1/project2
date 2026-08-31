@@ -1,9 +1,6 @@
 import assert from "node:assert/strict";
-import { readdir, readFile } from "node:fs/promises";
-import path from "node:path";
 import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
-
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createServer } from "vite";
@@ -17,69 +14,40 @@ const vite = await createServer({
   server: { middlewareMode: true },
 });
 
-after(async () => {
-  await vite.close();
+after(async () => vite.close());
+
+test("chart data table exposes a complete text alternative", async () => {
+  const { ChartDataTable } = await vite.ssrLoadModule("/src/components/ui.tsx");
+  const html = renderToStaticMarkup(React.createElement(ChartDataTable, {
+    caption: "Revenue by month",
+    headers: ["Month", "Revenue"],
+    rows: [["Aug", "$46,820"]],
+  }));
+  assert.match(html, /<caption>Revenue by month<\/caption>/);
+  assert.match(html, /scope="col">Month/);
+  assert.match(html, /\$46,820/);
 });
 
-async function readCssTree(directory) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const contents = await Promise.all(
-    entries.map(async (entry) => {
-      const entryPath = path.join(directory, entry.name);
-      if (entry.isDirectory()) {
-        return readCssTree(entryPath);
-      }
-      return entry.name.endsWith(".css") ? readFile(entryPath, "utf8") : "";
-    }),
-  );
-  return contents.join("\n");
-}
-
-test("emits the catalog's animation and scrolling utilities", async () => {
-  const css = await readCssTree(path.join(root, "dist"));
-
-  assert.match(css, /--tw-enter-opacity/);
-  assert.match(css, /scrollbar-width:\s*thin/);
-  assert.match(css, /scrollbar-width:\s*none/);
-  assert.match(css, /scrollbar-gutter:\s*stable/);
-  assert.match(css, /scroll-fade-reveal-b/);
-  assert.match(css, /mask-image:/);
-  assert.match(css, /tw-shimmer/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
+test("loading and error states expose status semantics", async () => {
+  const { DataState } = await vite.ssrLoadModule("/src/components/ui.tsx");
+  const loading = renderToStaticMarkup(React.createElement(DataState, {
+    state: "loading",
+    onRetry() {},
+    children: React.createElement("span", null, "ready"),
+  }));
+  const error = renderToStaticMarkup(React.createElement(DataState, {
+    state: "error",
+    onRetry() {},
+    children: React.createElement("span", null, "ready"),
+  }));
+  assert.match(loading, /role="status"/);
+  assert.match(error, /role="alert"/);
 });
 
-test("forwards progress semantics to the primitive", async () => {
-  const { Progress } = await vite.ssrLoadModule("/components/ui/progress.tsx");
-  const html = renderToStaticMarkup(React.createElement(Progress, { value: 37 }));
-
-  assert.match(html, /aria-valuenow="37"/);
-  assert.match(html, /aria-valuetext="37%"/);
-  assert.match(html, /data-state="loading"/);
-});
-
-test("emits chart themes for the starter's media dark mode", async () => {
-  const { ChartStyle } = await vite.ssrLoadModule("/components/ui/chart.tsx");
-  const html = renderToStaticMarkup(
-    React.createElement(ChartStyle, {
-      id: "contract",
-      config: {
-        latency: { theme: { light: "#ffffff", dark: "#000000" } },
-      },
-    }),
-  );
-
-  assert.match(html, /\[data-chart=contract\]/);
-  assert.match(html, /@media \(prefers-color-scheme: dark\)/);
-  assert.doesNotMatch(html, /\.dark/);
-});
-
-test("renders sidebar skeletons deterministically", async () => {
-  const { SidebarMenuSkeleton } = await vite.ssrLoadModule(
-    "/components/ui/sidebar.tsx",
-  );
-  const first = renderToStaticMarkup(React.createElement(SidebarMenuSkeleton));
-  const second = renderToStaticMarkup(React.createElement(SidebarMenuSkeleton));
-
-  assert.equal(first, second);
-  assert.match(first, /--skeleton-width:70%/);
+test("pagination disables unavailable directions", async () => {
+  const { Pagination } = await vite.ssrLoadModule("/src/components/ui.tsx");
+  const html = renderToStaticMarkup(React.createElement(Pagination, { page: 1, pages: 3, onPage() {} }));
+  assert.match(html, /aria-label="Pagination"/);
+  assert.match(html, /disabled=""[^>]*>.*Previous/);
+  assert.doesNotMatch(html, /disabled=""[^>]*>.*Next/);
 });

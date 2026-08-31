@@ -258,13 +258,12 @@ export default function SettingsPage() {
           </div>
 
           <form className="panel settings-panel" onSubmit={handleSubmit(save)} noValidate>
-            {tab === "profile" && (
-              <section role="tabpanel" tabIndex={0} id="settings-panel-profile" aria-labelledby="settings-tab-profile">
+            <section role="tabpanel" tabIndex={0} id="settings-panel-profile" aria-labelledby="settings-tab-profile" hidden={tab !== "profile"}>
                 <header><h2>Profile information</h2><p>How you appear across the LumaDesk workspace.</p></header>
                 <div className="profile-edit">
-                  {avatarPreview ? <img className="avatar avatar--xlarge avatar-image" src={avatarPreview} alt="New profile preview" /> : <span className="avatar avatar--xlarge" aria-hidden="true">AK</span>}
+                  {avatarPreview ? <span className="avatar avatar--xlarge avatar-image" role="img" aria-label="New profile preview" style={{ backgroundImage: `url(${avatarPreview})` }} /> : <span className="avatar avatar--xlarge" aria-hidden="true">AK</span>}
                   <div>
-                    <input ref={fileRef} className="sr-only" type="file" accept="image/jpeg,image/png" onChange={changePhoto} />
+                    <input ref={fileRef} hidden type="file" accept="image/jpeg,image/png" onChange={changePhoto} />
                     <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>Change photo</Button>
                     <small>JPG or PNG, up to 2MB.</small>
                   </div>
@@ -275,11 +274,9 @@ export default function SettingsPage() {
                   <label className="form-field form-span"><span>Email</span><input type="email" {...register("email", { required: "Email is required.", pattern: { value: /^\S+@\S+\.\S+$/, message: "Enter a valid email." } })} aria-invalid={Boolean(errors.email)} />{errors.email && <small className="field-error">{errors.email.message}</small>}</label>
                   <label className="form-field form-span"><span>Role</span><input {...register("role")} /></label>
                 </div>
-              </section>
-            )}
+            </section>
 
-            {tab === "business" && (
-              <section role="tabpanel" tabIndex={0} id="settings-panel-business" aria-labelledby="settings-tab-business">
+            <section role="tabpanel" tabIndex={0} id="settings-panel-business" aria-labelledby="settings-tab-business" hidden={tab !== "business"}>
                 <header><h2>Business information</h2><p>Details used in reports and customer documents.</p></header>
                 <div className="form-grid">
                   <label className="form-field form-span"><span>Business name</span><input {...register("businessName", { required: true })} /></label>
@@ -287,11 +284,9 @@ export default function SettingsPage() {
                   <label className="form-field"><span>Team size</span><select {...register("teamSize")}><option value="solo">Just me</option><option value="small">2–10 people</option><option value="medium">11–50 people</option></select></label>
                   <label className="form-field form-span"><span>Business address</span><input {...register("businessAddress")} /></label>
                 </div>
-              </section>
-            )}
+            </section>
 
-            {tab === "notifications" && (
-              <section role="tabpanel" tabIndex={0} id="settings-panel-notifications" aria-labelledby="settings-tab-notifications">
+            <section role="tabpanel" tabIndex={0} id="settings-panel-notifications" aria-labelledby="settings-tab-notifications" hidden={tab !== "notifications"}>
                 <header><h2>Notifications</h2><p>Choose the signals that deserve your attention.</p></header>
                 <div className="switch-list">
                   <SwitchRow title="New orders" description="Notify me when a new order is placed." inputProps={register("notifyNewOrders")} />
@@ -299,11 +294,9 @@ export default function SettingsPage() {
                   <SwitchRow title="Weekly summary" description="Send a quiet Monday performance digest." inputProps={register("notifyWeeklySummary")} />
                   <SwitchRow title="Product updates" description="Occasional notes about new LumaDesk features." inputProps={register("notifyProductUpdates")} />
                 </div>
-              </section>
-            )}
+            </section>
 
-            {tab === "appearance" && (
-              <section role="tabpanel" tabIndex={0} id="settings-panel-appearance" aria-labelledby="settings-tab-appearance">
+            <section role="tabpanel" tabIndex={0} id="settings-panel-appearance" aria-labelledby="settings-tab-appearance" hidden={tab !== "appearance"}>
                 <header><h2>Appearance</h2><p>Choose a comfortable working environment.</p></header>
                 <fieldset className="theme-options">
                   <legend>Color theme</legend>
@@ -311,11 +304,9 @@ export default function SettingsPage() {
                   <label><input {...themeField} type="radio" value="dark" checked={theme === "dark"} onChange={(event) => { themeField.onChange(event); setTheme("dark"); }} /><span className="theme-preview theme-preview--dark" /><strong>Deep evening</strong><small>Low-glare dark surfaces.</small></label>
                 </fieldset>
                 <SwitchRow title="Reduced motion" description="Keep interface transitions to a minimum." inputProps={register("reducedMotion")} />
-              </section>
-            )}
+            </section>
 
-            {tab === "regional" && (
-              <section role="tabpanel" tabIndex={0} id="settings-panel-regional" aria-labelledby="settings-tab-regional">
+            <section role="tabpanel" tabIndex={0} id="settings-panel-regional" aria-labelledby="settings-tab-regional" hidden={tab !== "regional"}>
                 <header><h2>Regional preferences</h2><p>Control how dates, money, and time appear.</p></header>
                 <div className="form-grid">
                   <label className="form-field"><span>Language</span><select {...register("language")}><option value="en">English</option><option value="ar">Arabic</option></select></label>
@@ -323,19 +314,16 @@ export default function SettingsPage() {
                   <label className="form-field"><span>Currency</span><select {...register("currency")}><option value="usd">USD — US Dollar</option><option value="aed">AED — UAE Dirham</option><option value="eur">EUR — Euro</option></select></label>
                   <label className="form-field"><span>Date format</span><select {...register("dateFormat")}><option value="long">Aug 31, 2026</option><option value="short">31/08/2026</option></select></label>
                 </div>
-              </section>
-            )}
+            </section>
 
-            {tab === "security" && (
-              <section role="tabpanel" tabIndex={0} id="settings-panel-security" aria-labelledby="settings-tab-security">
+            <section role="tabpanel" tabIndex={0} id="settings-panel-security" aria-labelledby="settings-tab-security" hidden={tab !== "security"}>
                 <header><h2>Security</h2><p>Protect your workspace and active sessions.</p></header>
                 <div className="switch-list">
                   <SwitchRow title="Two-factor authentication" description="Require a verification code when signing in." inputProps={register("twoFactor")} />
                   <SwitchRow title="Login alerts" description="Email me when a new device signs in." inputProps={register("loginAlerts")} />
                 </div>
                 <div className="security-note"><LockKeyhole size={20} aria-hidden="true" /><div><strong>{passwordChanged ? "Password changed just now" : "Password last changed 42 days ago"}</strong><p>Use a unique password with at least 12 characters.</p><PasswordDialog onChanged={() => setPasswordChanged(true)} /></div></div>
-              </section>
-            )}
+            </section>
 
             <footer className="settings-footer">
               <p aria-live="polite">{saved ? <span className="saved-message"><Check aria-hidden="true" size={16} /> Changes saved</span> : isDirty ? "You have unsaved changes." : "Everything is up to date."}</p>

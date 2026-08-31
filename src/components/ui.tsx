@@ -13,7 +13,7 @@ export function Button({
   variant?: "primary" | "secondary" | "quiet" | "danger";
 }) {
   return (
-    <button className={`button button--${variant} ${className}`} {...props}>
+    <button type="button" className={`button button--${variant} ${className}`} {...props}>
       {children}
     </button>
   );

@@ -77,6 +77,7 @@ function Navigation({ collapsed = false, mobile = false }: { collapsed?: boolean
               to={to}
               className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
               title={collapsed ? label : undefined}
+              aria-label={collapsed ? label : undefined}
             >
               <Icon aria-hidden="true" size={19} />
               {!collapsed && <span>{label}</span>}
@@ -85,7 +86,7 @@ function Navigation({ collapsed = false, mobile = false }: { collapsed?: boolean
           return mobile ? <SheetClose asChild key={to}>{link}</SheetClose> : link;
         })}
       </nav>
-      <button className="nav-link logout" onClick={logout}>
+      <button type="button" className="nav-link logout" onClick={logout}>
         <LogOut aria-hidden="true" size={19} />
         {!collapsed && <span>Log out</span>}
       </button>
@@ -111,7 +112,7 @@ function WorkspaceSearch() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="icon-button desktop-search" aria-label="Search workspace">
+        <button type="button" className="icon-button desktop-search" aria-label="Search workspace">
           <Search aria-hidden="true" size={19} />
         </button>
       </DialogTrigger>
@@ -125,9 +126,9 @@ function WorkspaceSearch() {
           <Search aria-hidden="true" size={17} />
           <input autoFocus type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Dashboard, customers, analytics…" />
         </label>
-        <div className="workspace-search-results" role="list">
+        <div className="workspace-search-results">
           {matches.map(({ to, label, description, icon: Icon }) => (
-            <button key={to} type="button" onClick={() => go(to)} role="listitem">
+            <button key={to} type="button" onClick={() => go(to)}>
               <Icon aria-hidden="true" size={18} /><span><strong>{label}</strong><small>{description}</small></span>
             </button>
           ))}
@@ -163,6 +164,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         </div>
         <Navigation collapsed={collapsed} />
         <button
+          type="button"
           className="collapse-button"
           onClick={() => setCollapsed((value) => !value)}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -177,7 +179,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           <div className="topbar-left">
             <Sheet>
               <SheetTrigger asChild>
-                <button className="icon-button mobile-menu" aria-label="Open navigation menu">
+                <button type="button" className="icon-button mobile-menu" aria-label="Open navigation menu">
                   <Menu aria-hidden="true" />
                 </button>
               </SheetTrigger>
@@ -211,7 +213,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className={`icon-button ${unread ? "has-dot" : ""}`} aria-label={`Notifications, ${unread} unread`}>
+                <button type="button" className={`icon-button ${unread ? "has-dot" : ""}`} aria-label={`Notifications, ${unread} unread`}>
                   <Bell aria-hidden="true" size={19} />
                 </button>
               </DropdownMenuTrigger>
@@ -228,13 +230,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button className="icon-button" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}>
+            <button type="button" className="icon-button" onClick={toggleTheme} aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}>
               {theme === "light" ? <Moon aria-hidden="true" size={19} /> : <Sun aria-hidden="true" size={19} />}
             </button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="profile-button" aria-label="Open Ahmad's profile menu">
+                <button type="button" className="profile-button" aria-label="Open Ahmad's profile menu">
                   <span>AK</span><span className="profile-copy"><strong>Ahmad Kali</strong><small>Administrator</small></span>
                 </button>
               </DropdownMenuTrigger>

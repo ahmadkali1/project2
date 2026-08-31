@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Eye, Plus, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -103,11 +103,8 @@ export default function CustomersPage() {
 
   const filtered = useMemo(() => filterAndSortCustomers(rows, query, status, type, sort), [rows, query, status, type, sort]);
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  useEffect(() => {
-    if (page > pages) setPage(pages);
-  }, [page, pages]);
+  const safePage = Math.min(page, pages);
+  const visible = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   function resetPage() { setPage(1); }
 
@@ -139,12 +136,12 @@ export default function CustomersPage() {
                       <td data-label="Status"><StatusBadge status={customer.status} /></td>
                       <td data-label="Orders">{customer.orders}</td>
                       <td data-label="Lifetime spend"><strong>{"$" + customer.spend.toLocaleString()}</strong></td>
-                      <td data-label="Actions"><Dialog><DialogTrigger asChild><button className="row-action" aria-label={"View " + customer.name}><Eye aria-hidden="true" size={17} /></button></DialogTrigger><CustomerDetails customer={customer} /></Dialog></td>
+                      <td data-label="Actions"><Dialog><DialogTrigger asChild><button type="button" className="row-action" aria-label={"View " + customer.name}><Eye aria-hidden="true" size={17} /></button></DialogTrigger><CustomerDetails customer={customer} /></Dialog></td>
                     </tr>
                   ))}</tbody>
                 </table>
               </div>
-              <div className="table-footer"><p aria-live="polite">Showing {visible.length} of {filtered.length} customers</p><Pagination page={page} pages={pages} onPage={setPage} /></div>
+              <div className="table-footer"><p aria-live="polite">Showing {visible.length} of {filtered.length} customers</p><Pagination page={safePage} pages={pages} onPage={setPage} /></div>
             </>
           )}
         </section>

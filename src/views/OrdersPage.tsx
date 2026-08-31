@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { CalendarDays, Eye, Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -95,11 +95,8 @@ export default function OrdersPage() {
 
   const filtered = useMemo(() => filterAndSortOrders(rows, query, status, sort), [rows, query, status, sort]);
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  useEffect(() => {
-    if (page > pages) setPage(pages);
-  }, [page, pages]);
+  const safePage = Math.min(page, pages);
+  const visible = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   return (
     <>
@@ -129,12 +126,12 @@ export default function OrdersPage() {
                       <td data-label="Payment"><StatusBadge status={order.paymentStatus} /></td>
                       <td data-label="Fulfillment"><StatusBadge status={order.fulfillment} /></td>
                       <td data-label="Total" className="numeric"><strong>{"$" + order.total.toLocaleString()}</strong></td>
-                      <td data-label="Actions"><Dialog><DialogTrigger asChild><button className="row-action" aria-label={"View " + order.id}><Eye aria-hidden="true" size={17} /></button></DialogTrigger><OrderDetails order={order} /></Dialog></td>
+                      <td data-label="Actions"><Dialog><DialogTrigger asChild><button type="button" className="row-action" aria-label={"View " + order.id}><Eye aria-hidden="true" size={17} /></button></DialogTrigger><OrderDetails order={order} /></Dialog></td>
                     </tr>
                   ))}</tbody>
                 </table>
               </div>
-              <div className="table-footer"><p aria-live="polite">Showing {visible.length} of {filtered.length} orders</p><Pagination page={page} pages={pages} onPage={setPage} /></div>
+              <div className="table-footer"><p aria-live="polite">Showing {visible.length} of {filtered.length} orders</p><Pagination page={safePage} pages={pages} onPage={setPage} /></div>
             </>
           )}
         </section>

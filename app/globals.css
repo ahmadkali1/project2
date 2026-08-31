@@ -333,7 +333,7 @@ tbody tr:hover { background: color-mix(in srgb, var(--surface-2) 55%, transparen
 }
 .dialog-form { display: grid; gap: 15px; margin-top: 6px; }
 .dialog-form .button { justify-self: start; }
-.avatar-image { object-fit: cover; border: 1px solid var(--line); }
+.avatar-image { border: 1px solid var(--line); background-position: center; background-size: cover; }
 .workspace-search-dialog { gap: 16px; }
 .workspace-search-field { width: 100%; }
 .workspace-search-results { display: grid; gap: 5px; }
