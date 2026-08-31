@@ -1,0 +1,61 @@
+diff --git a/src/views/SettingsPage.tsx b/src/views/SettingsPage.tsx
+index ddd5667..2309544 100644
+--- a/src/views/SettingsPage.tsx
++++ b/src/views/SettingsPage.tsx
+@@ -9,7 +9,7 @@ import {
+   type InputHTMLAttributes,
+   type KeyboardEvent,
+ } from "react";
+-import { useForm } from "react-hook-form";
++import { useForm, useWatch } from "react-hook-form";
+ import { Bell, Building2, Check, Globe2, LockKeyhole, Palette, UserRound } from "lucide-react";
+ import { toast } from "sonner";
+ import {
+@@ -164,14 +164,14 @@ export default function SettingsPage() {
+     handleSubmit,
+     reset,
+     setValue,
+-    watch,
++    control,
+     formState: { isDirty, errors },
+   } = useForm<SettingsFormValues>({
+     defaultValues: () => Promise.resolve({ ...loadSettings(), theme }),
+     mode: "onChange",
+   });
+ 
+-  const reducedMotion = watch("reducedMotion");
++  const reducedMotion = useWatch({ control, name: "reducedMotion" });
+ 
+   useEffect(() => {
+     setValue("theme", theme, { shouldDirty: false });
+diff --git a/tests/ui-components.test.mjs b/tests/ui-components.test.mjs
+index 1177a31..5fa1165 100644
+--- a/tests/ui-components.test.mjs
++++ b/tests/ui-components.test.mjs
+@@ -30,16 +30,16 @@ test("chart data table exposes a complete text alternative", async () => {
+ 
+ test("loading and error states expose status semantics", async () => {
+   const { DataState } = await vite.ssrLoadModule("/src/components/ui.tsx");
+-  const loading = renderToStaticMarkup(React.createElement(DataState, {
+-    state: "loading",
+-    onRetry() {},
+-    children: React.createElement("span", null, "ready"),
+-  }));
+-  const error = renderToStaticMarkup(React.createElement(DataState, {
+-    state: "error",
+-    onRetry() {},
+-    children: React.createElement("span", null, "ready"),
+-  }));
++  const loading = renderToStaticMarkup(React.createElement(
++    DataState,
++    { state: "loading", onRetry() {} },
++    React.createElement("span", null, "ready"),
++  ));
++  const error = renderToStaticMarkup(React.createElement(
++    DataState,
++    { state: "error", onRetry() {} },
++    React.createElement("span", null, "ready"),
++  ));
+   assert.match(loading, /role="status"/);
+   assert.match(error, /role="alert"/);
+ });

@@ -30,16 +30,16 @@ test("chart data table exposes a complete text alternative", async () => {
 
 test("loading and error states expose status semantics", async () => {
   const { DataState } = await vite.ssrLoadModule("/src/components/ui.tsx");
-  const loading = renderToStaticMarkup(React.createElement(DataState, {
-    state: "loading",
-    onRetry() {},
-    children: React.createElement("span", null, "ready"),
-  }));
-  const error = renderToStaticMarkup(React.createElement(DataState, {
-    state: "error",
-    onRetry() {},
-    children: React.createElement("span", null, "ready"),
-  }));
+  const loading = renderToStaticMarkup(React.createElement(
+    DataState,
+    { state: "loading", onRetry() {} },
+    React.createElement("span", null, "ready"),
+  ));
+  const error = renderToStaticMarkup(React.createElement(
+    DataState,
+    { state: "error", onRetry() {} },
+    React.createElement("span", null, "ready"),
+  ));
   assert.match(loading, /role="status"/);
   assert.match(error, /role="alert"/);
 });
@@ -48,6 +48,12 @@ test("pagination disables unavailable directions", async () => {
   const { Pagination } = await vite.ssrLoadModule("/src/components/ui.tsx");
   const html = renderToStaticMarkup(React.createElement(Pagination, { page: 1, pages: 3, onPage() {} }));
   assert.match(html, /aria-label="Pagination"/);
-  assert.match(html, /disabled=""[^>]*>.*Previous/);
-  assert.doesNotMatch(html, /disabled=""[^>]*>.*Next/);
+  const buttons =
+  html.match(/<button\b[^>]*>[\s\S]*?<\/button>/g) ?? [];
+
+assert.equal(buttons.length, 2);
+assert.match(buttons[0], /\sdisabled=""/);
+assert.doesNotMatch(buttons[1], /\sdisabled=""/);
+
+
 });

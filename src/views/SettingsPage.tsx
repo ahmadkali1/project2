@@ -9,7 +9,7 @@ import {
   type InputHTMLAttributes,
   type KeyboardEvent,
 } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Bell, Building2, Check, Globe2, LockKeyhole, Palette, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -164,14 +164,14 @@ export default function SettingsPage() {
     handleSubmit,
     reset,
     setValue,
-    watch,
+    control,
     formState: { isDirty, errors },
   } = useForm<SettingsFormValues>({
     defaultValues: () => Promise.resolve({ ...loadSettings(), theme }),
     mode: "onChange",
   });
 
-  const reducedMotion = watch("reducedMotion");
+  const reducedMotion = useWatch({ control, name: "reducedMotion" });
 
   useEffect(() => {
     setValue("theme", theme, { shouldDirty: false });
