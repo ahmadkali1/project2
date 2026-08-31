@@ -5,9 +5,6 @@ export const metadata: Metadata = {
   title: "LumaDesk — Commerce, clearly managed",
   description:
     "A calm, responsive commerce dashboard for customers, orders, and business analytics.",
-  other: {
-    "codex-preview": "development",
-  },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",

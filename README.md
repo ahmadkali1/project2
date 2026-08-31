@@ -2,9 +2,7 @@
 
 LumaDesk is a responsive React + TypeScript commerce dashboard built as a portfolio project for customers, orders, analytics, and workspace settings. The application focuses on clean information hierarchy, reusable UI, keyboard accessibility, meaningful demo interactions, and verifiable quality gates.
 
-## Live Demo
-
-[Open the hosted LumaDesk dashboard](https://lumadesk-dashboard.yaah618.chatgpt.site)
+## Demo
 
 Demo credentials:
 
@@ -183,7 +181,7 @@ CI uses Node 22, npm dependency caching, read-only repository permissions, and a
 
 ```text
 .github/workflows/       CI quality gate
-app/                     Hosting entry route and global design system
+app/                     Application entry route and global design system
 components/ui/           Only the Radix/shadcn primitives used by LumaDesk
 src/
 ├── components/          Reusable application components and route guard
@@ -202,7 +200,7 @@ Unused starter UI components, database examples, and unrelated template dependen
 
 ## Deployment
 
-The existing hosting adapter supports the published demo and direct route refreshes. For a new deployment, install dependencies, run `npm run verify`, then deploy the generated production build with the same hosting adapter or another compatible React/Vite host.
+For deployment, install dependencies, run `npm run verify`, then deploy the generated production build to a compatible React/Vite host.
 
 ## Security Scope
 
