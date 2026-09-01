@@ -2,6 +2,8 @@
 
 LumaDesk is a responsive React + TypeScript commerce dashboard built as a portfolio project for customers, orders, analytics, and workspace settings. The application focuses on clean information hierarchy, reusable UI, keyboard accessibility, meaningful demo interactions, and verifiable quality gates.
 
+**Live Demo:** [LumaDesk Commerce Dashboard](https://ahmadkali1.github.io/project2/)
+
 ## Demo
 
 Demo credentials:
@@ -200,7 +202,9 @@ Unused starter UI components, database examples, and unrelated template dependen
 
 ## Deployment
 
-For deployment, install dependencies, run `npm run verify`, then deploy the generated production build to a compatible React/Vite host.
+The project is published with GitHub Pages through `.github/workflows/deploy-pages.yml`.
+
+Live demo: https://ahmadkali1.github.io/project2/
 
 ## Security Scope
 
