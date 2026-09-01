@@ -20,8 +20,10 @@ export default function DashboardClient() {
     );
   }
 
+  const basename = process.env.NEXT_PUBLIC_BASE_PATH || undefined;
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <DashboardApp />
     </BrowserRouter>
   );
